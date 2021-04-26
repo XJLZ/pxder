@@ -81,11 +81,28 @@ class UgoiraDir {
 	}
 }
 
+async function todb(illust) {
+	return new Promise((reslove, reject) => {
+		Pixiv.create(
+			illust,
+			(err, res) => {
+				if (err) {
+					console.log(err)
+					reject(false);
+				} else {
+					reslove();
+				}
+			}
+		)
+	});
+}
+
 module.exports = {
 	UgoiraDir,
 	showProgress,
 	clearProgress,
 	download,
+	todb,
 	readJsonSafely,
 	logError: require('./logError'),
 };

@@ -128,8 +128,28 @@ async function downloadByBookmark(me, isPrivate = false) {
 	do {
 		cnt = 0;
 		const temps = await me.bookmarks(isPrivate);
-		for (const temp of temps) {
-			if (!illustExists(temp.file)) {
+		// for (const temp of temps) {
+		// 	if (!illustExists(temp.file)) {
+		// 		illusts.push(temp);
+		// 		cnt++;
+		// 	}
+		// }
+		// 写文件
+		let file = Path.join(config.path, dir, 'bookmark.txt')
+		if (Fse.existsSync(file)) {
+			let data = Fse.readFileSync(file, 'utf-8')
+			let arr = data.substr(0, data.lastIndexOf('###') - 1).split('###')
+
+			for (let temp of temps) {
+				if (!arr.includes(temp.file)) {
+					Fse.appendFileSync(file, temp.file + '###')
+					illusts.push(temp);
+				}
+				cnt++;
+			}
+		} else {
+			for (let temp of temps) {
+				Fse.appendFileSync(file, temp.file + '###')
 				illusts.push(temp);
 				cnt++;
 			}
@@ -139,7 +159,9 @@ async function downloadByBookmark(me, isPrivate = false) {
 	Tools.clearProgress(processDisplay);
 
 	// 下载
-	await downloadIllusts(illusts.reverse(), Path.join(dldir), config.thread);
+	// await downloadIllusts(illusts.reverse(), Path.join(dldir), config.thread);
+	await jsonTodb(illusts, config.thread)
+
 }
 
 /**
@@ -223,8 +245,7 @@ function downloadIllusts(illusts, dldir, totalThread) {
 							} else if (times == 1) errorThread++;
 							if (global.p_debug) console.log(e);
 							console.log(
-								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${
-									illust.id.toString().cyan
+								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan
 								}\t${illust.title.yellow}`
 							);
 							return tryDownload(times + 1);
@@ -311,6 +332,90 @@ function sleep(ms) {
 		setTimeout(resolve, ms);
 	});
 }
+
+/**
+ * 多线程插入数据库
+ *
+ * @param {Array<Illust>} illusts 插画队列
+ * @param {string} dldir 下载目录
+ * @param {number} totalThread 下载线程
+ * @returns 成功下载的画作数
+ */
+ function downloadIllusts(illusts, dldir, totalThread) {
+	const tempDir = config.tmp;
+	let totalI = 0;
+
+	// 清除残留的临时文件
+	if (Fse.existsSync(tempDir)) Fse.removeSync(tempDir);
+
+	// 开始多线程下载
+	let errorThread = 0;
+	let pause = false;
+	const hangup = 5 * 60 * 1000;
+	let errorTimeout = null;
+
+	// 单个线程
+	function singleThread(threadID) {
+		return new Promise(async resolve => {
+			while (true) {
+				const i = totalI++;
+				// 线程终止
+				if (i >= illusts.length) return resolve(threadID);
+
+				const illust = illusts[i];
+
+				// 开始插入
+				console.log(`  [${threadID}]\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan}\t${illust.title.yellow}`);
+				await (async function tryDownload(times) {
+					if (times > 10) {
+						if (errorThread > 1) {
+							if (errorTimeout) clearTimeout(errorTimeout);
+							errorTimeout = setTimeout(() => {
+								console.log('\n' + 'Network error! Pause 5 minutes.'.red + '\n');
+							}, 1000);
+							pause = true;
+						} else return;
+					}
+					if (pause) {
+						times = 1;
+						await sleep(hangup);
+						pause = false;
+					}
+					// 失败重试
+					return Tools.todb(illust)
+						.then(async res => {
+							if (times != 1) errorThread--;
+						})
+						.catch(e => {
+							if (e && e.response && e.response.status == 404) {
+								console.log('  ' + '404'.bgRed + `\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan}\t${illust.title.yellow}`);
+								return;
+							} else if (times == 1) errorThread++;
+							if (global.p_debug) console.log(e);
+							console.log(
+								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan
+								}\t${illust.title.yellow}`
+							);
+							return tryDownload(times + 1);
+						});
+				})(1);
+			}
+		});
+	}
+
+	const threads = [];
+
+	// 开始多线程
+	for (let t = 0; t < totalThread; t++)
+		threads.push(
+			singleThread(t).catch(e => {
+				if (global.p_debug) console.log(e);
+			})
+		);
+
+	return Promise.all(threads);
+}
+
 
 module.exports = {
 	setConfig,

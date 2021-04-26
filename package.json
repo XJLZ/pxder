@@ -19,7 +19,9 @@
     "prompts": "^2.4.1",
     "readline-sync": "^1.4.10",
     "register-protocol-win32": "^1.1.0",
-    "socks-proxy-agent": "^5.0.0"
+    "socks-proxy-agent": "^5.0.0",
+    "mongoose": "^5.10.15",
+    "mongodb": "^3.6.3"
   },
   "devDependencies": {
     "@types/readline-sync": "^1.4.3",

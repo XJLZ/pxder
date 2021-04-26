@@ -14,11 +14,15 @@ class Illust {
 	 * @param {string} file 文件名
 	 * @memberof Illust
 	 */
-	constructor(id, title, url, file) {
+	 constructor(id, title, author, url, width, height, tags, file) {
 		this.id = id;
 		this.title = title;
 		this.url = url;
 		this.file = file;
+		this.author = author;
+		this.width = width;
+		this.height = height;
+		this.tags = tags;
 	}
 
 	static setPixiv(p) {
@@ -64,13 +68,13 @@ class Illust {
 				for (const pi in illustJSON.meta_pages) {
 					const url = illustJSON.meta_pages[pi].image_urls.original;
 					const ext = url.substr(url.lastIndexOf('.')); // 图片扩展名
-					illusts.push(new Illust(id, title + '_p' + pi, url, `(${id})${fileName}_p${pi}${ext}`));
+					illusts.push(new Illust(id, title + '_p' + pi, author, url, width, height, tags, `(${id})${fileName}_p${pi}${ext}`));
 				}
 			} else if (illustJSON.meta_single_page.original_image_url) {
 				const url = illustJSON.meta_single_page.original_image_url;
 				const ext = url.substr(url.lastIndexOf('.')); // 图片扩展名
 				// 单图
-				illusts.push(new Illust(id, title, url, `(${id})${fileName}${ext}`));
+				illusts.push(new Illust(id, title, author, url, width, height, tags, `(${id})${fileName}${ext}`));
 			}
 		}
 		// 结果
