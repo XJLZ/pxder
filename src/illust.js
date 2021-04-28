@@ -14,8 +14,8 @@ class Illust {
 	 * @param {string} file 文件名
 	 * @memberof Illust
 	 */
-	 constructor(id, title, author, url, width, height, tags, file) {
-		this.id = id;
+	 constructor(pid, title, author, url, width, height, tags, file) {
+		this.pid = pid;
 		this.title = title;
 		this.url = url;
 		this.file = file;
@@ -31,10 +31,14 @@ class Illust {
 
 	getObject() {
 		return {
-			id: this.id,
+			pid: this.pid,
 			title: this.title,
 			url: this.url,
 			file: this.file,
+			author: this.author,
+			width: this.width,
+			height: this.height,
+			tags: this.tags,
 		};
 	}
 
@@ -46,6 +50,7 @@ class Illust {
 	 */
 	static async getIllusts(illustJSON) {
 		const illusts = [];
+		console.log(illustJSON);
 		// 得到插画信息
 		const title = illustJSON.title.replace(/[\x00-\x1F\x7F]/g, '');
 		const fileName = title.replace(/[/\\:*?"<>|.&$]/g, ''); // 适合的文件名

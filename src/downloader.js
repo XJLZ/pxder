@@ -205,7 +205,7 @@ function downloadIllusts(illusts, dldir, totalThread) {
 				if (httpsAgent) options.httpsAgent = httpsAgent;
 
 				// 开始下载
-				console.log(`  [${threadID}]\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan}\t${illust.title.yellow}`);
+				console.log(`  [${threadID}]\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.pid.toString().cyan}\t${illust.title.yellow}`);
 				await (async function tryDownload(times) {
 					if (times > 10) {
 						if (errorThread > 1) {
@@ -240,12 +240,12 @@ function downloadIllusts(illusts, dldir, totalThread) {
 						})
 						.catch(e => {
 							if (e && e.response && e.response.status == 404) {
-								console.log('  ' + '404'.bgRed + `\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan}\t${illust.title.yellow}`);
+								console.log('  ' + '404'.bgRed + `\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.pid.toString().cyan}\t${illust.title.yellow}`);
 								return;
 							} else if (times == 1) errorThread++;
 							if (global.p_debug) console.log(e);
 							console.log(
-								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan
+								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.pid.toString().cyan
 								}\t${illust.title.yellow}`
 							);
 							return tryDownload(times + 1);
@@ -365,7 +365,7 @@ function sleep(ms) {
 				const illust = illusts[i];
 
 				// 开始插入
-				console.log(`  [${threadID}]\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan}\t${illust.title.yellow}`);
+				console.log(`  [${threadID}]\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.pid.toString().cyan}\t${illust.title.yellow}`);
 				await (async function tryDownload(times) {
 					if (times > 10) {
 						if (errorThread > 1) {
@@ -388,12 +388,12 @@ function sleep(ms) {
 						})
 						.catch(e => {
 							if (e && e.response && e.response.status == 404) {
-								console.log('  ' + '404'.bgRed + `\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan}\t${illust.title.yellow}`);
+								console.log('  ' + '404'.bgRed + `\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.pid.toString().cyan}\t${illust.title.yellow}`);
 								return;
 							} else if (times == 1) errorThread++;
 							if (global.p_debug) console.log(e);
 							console.log(
-								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.id.toString().cyan
+								`  ${times >= 10 ? `[${threadID}]`.bgRed : `[${threadID}]`.bgYellow}\t${(parseInt(i) + 1).toString().green}/${illusts.length}\t ${'pid'.gray} ${illust.pid.toString().cyan
 								}\t${illust.title.yellow}`
 							);
 							return tryDownload(times + 1);
