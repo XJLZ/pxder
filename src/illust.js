@@ -1,5 +1,5 @@
 let pixiv;
-
+let a = 0;
 /**
  * 插画
  *
@@ -14,7 +14,7 @@ class Illust {
 	 * @param {string} file 文件名
 	 * @memberof Illust
 	 */
-	 constructor(pid, title, author, url, width, height, tags, file) {
+	constructor(pid, title, author, url, width, height, tags, file) {
 		this.pid = pid;
 		this.title = title;
 		this.url = url;
@@ -49,15 +49,31 @@ class Illust {
 	 * @returns 插画列表
 	 */
 	static async getIllusts(illustJSON) {
+		// if(a == 0 ){
+		// 	console.log(illustJSON);
+		// 	a ++;
+		// }
+		if (illustJSON.total_bookmarks < 5000) {
+			return
+		}
 		const illusts = [];
-		console.log(illustJSON);
 		// 得到插画信息
 		const title = illustJSON.title.replace(/[\x00-\x1F\x7F]/g, '');
 		const fileName = title.replace(/[/\\:*?"<>|.&$]/g, ''); // 适合的文件名
 		const id = illustJSON.id;
+		const author = illustJSON.user;
+		const width = illustJSON.width;
+		const height = illustJSON.height;
+		const tags = []
+		for (let tag of illustJSON.tags) {
+			tags.push(tag.name)
+			if (tag.name.includes('r18') || tag.name.includes('r-18') || tag.name.includes('R18') || tag.name.includes('R-18')) {
+				return
+			}
+		}
 		// 动图的话是一个压缩包
 		if (illustJSON.type == 'ugoira') {
-			const ugoiraParams = [id, title, illustJSON.meta_single_page.original_image_url.replace('img-original', 'img-zip-ugoira').replace(/_ugoira0\.(.*)/, '_ugoira1920x1080.zip')];
+			const ugoiraParams = [id, title, author, illustJSON.meta_single_page.original_image_url.replace('img-original', 'img-zip-ugoira').replace(/_ugoira0\.(.*)/, '_ugoira1920x1080.zip'), width, height, tags];
 			if (global.ugoiraMeta) {
 				try {
 					const uDelay = await pixiv.ugoiraMetaData(id).then(ret => ret.ugoira_metadata.frames[0].delay);

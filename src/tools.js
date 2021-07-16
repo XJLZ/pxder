@@ -2,6 +2,7 @@ const Fse = require('fs-extra');
 const Readline = require('readline');
 const Axios = require('axios');
 const Path = require('path');
+const Pixiv = require('./Pixiv')
 
 function showProgress(valFn) {
 	return setInterval(() => {
